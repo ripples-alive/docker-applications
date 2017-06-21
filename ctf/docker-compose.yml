@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  ctf-box:
+    build: ctf-box
+    image: ripples/ctf-box
+    container_name: ctf-box
+    command: /sbin/my_init
+    ports:
+      - "13002:3002"
+      - "14000:4000"
+      - "10022:22"
+    volumes:
+      - ~/workspace/CTF:/root/workspace
+    hostname: ctf-box
+    privileged: true
+
+  qira:
+    build: qira
+    image: ripples/ctf-box
+    ports:
+      - "3002:3002"
+      - "4000:4000"
