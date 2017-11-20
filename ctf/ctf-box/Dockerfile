@@ -64,9 +64,10 @@ RUN pip install -U pip ipython==5.* pwntools virtualenv virtualenvwrapper angr
 ENV WORKON_HOME /root/.virtualenvs
 
 # gdb
-RUN git clone --depth 1 https://github.com/longld/peda.git ~/peda \
-    && git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git ~/Pwngdb \
-    && cp ~/Pwngdb/.gdbinit ~/
+RUN cd ~ && git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git Pwngdb \
+    && git clone --depth 1 https://github.com/pwndbg/pwndbg.git pwndbg \
+    && cd pwndbg && ./setup.sh
+COPY .gdbinit /root/.gdbinit
 
 # fix locale
 RUN locale-gen en_US.UTF-8 && localedef -i en_US -f UTF-8 en_US.UTF-8
