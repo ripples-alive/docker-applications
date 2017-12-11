@@ -11,10 +11,12 @@ RUN dpkg --add-architecture i386 \
         bc \
         binutils-arm-linux-gnueabi \
         build-essential \
+        cmake \
         debian-keyring \
         g++ \
         gcc \
         gdb-multiarch \
+        gdbserver \
         git \
         httpie \
         libc6-dbg \
@@ -39,6 +41,7 @@ RUN dpkg --add-architecture i386 \
         python-dev \
         python-pip \
         rsync \
+        ruby \
         socat \
         software-properties-common \
         strace \
@@ -59,9 +62,22 @@ RUN cd ~ && git clone --depth 1 --branch=z3-4.5.0 https://github.com/Z3Prover/z3
     && cd z3 && python scripts/mk_make.py \
     && cd build && make && make install
 
+# keystone-engine
+RUN cd ~ && git clone --depth 1 --branch=0.9.1 https://github.com/keystone-engine/keystone.git \
+    && cd keystone && mkdir build && cd build \
+    && sed -i 's/make -j8/make -j1/' ../make-share.sh \
+    && bash ../make-share.sh && make install && ldconfig \
+    && cd ../bindings/python \
+    && sed -i "s/^PKG_NAME = 'keystone'/PKG_NAME = 'keystone-engine'/" setup.py \
+    && sed -i "s/^VERSION = '0.9'/VERSION = '9.9'/" setup.py \
+    && make install
+
 # python libs
-RUN pip install -U pip ipython==5.* pwntools virtualenv virtualenvwrapper angr
+RUN pip install -U pip ipython==5.* pwntools virtualenv virtualenvwrapper angr binch
 ENV WORKON_HOME /root/.virtualenvs
+
+# one gadget
+RUN gem install one_gadget
 
 # gdb
 RUN cd ~ && git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git Pwngdb \
