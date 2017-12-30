@@ -7,11 +7,13 @@ COPY pip.conf /root/.pip/pip.conf
 
 RUN dpkg --add-architecture i386 \
     && apt-get update && apt-get -y upgrade && apt-get install -y \
+        ack \
         autojump \
         bc \
         binutils-arm-linux-gnueabi \
         build-essential \
         cmake \
+        ctags \
         debian-keyring \
         g++ \
         gcc \
