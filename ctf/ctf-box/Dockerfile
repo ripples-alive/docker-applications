@@ -55,10 +55,6 @@ RUN dpkg --add-architecture i386 \
         zsh \
     && rm -rf /var/lib/apt/lists/*
 
-# qira
-RUN cd ~ && git clone --depth 1 https://github.com/BinaryAnalysisPlatform/qira.git \
-    && cd qira/ && yes | ./install.sh
-
 # z3
 RUN cd ~ && git clone --depth 1 --branch=z3-4.5.0 https://github.com/Z3Prover/z3.git \
     && cd z3 && python scripts/mk_make.py \
@@ -75,7 +71,8 @@ RUN cd ~ && git clone --depth 1 --branch=0.9.1 https://github.com/keystone-engin
     && make install
 
 # python libs
-RUN pip install -U pip ipython==5.* pwntools virtualenv virtualenvwrapper angr binch
+RUN pip install -U pip ipython==5.* pwntools virtualenv virtualenvwrapper angr binch \
+    && pip install -I --no-binary :all: capstone
 ENV WORKON_HOME /root/.virtualenvs
 
 # one gadget
@@ -101,9 +98,7 @@ ENV PYTHONPATH /root/ctf-scripts/utils
 COPY authorized_keys /root/.ssh/authorized_keys
 RUN chmod -R 700 /root/.ssh && chmod 600 /root/.ssh/authorized_keys
 
-# qira port
-EXPOSE 3002
-EXPOSE 4000
+# ssh port
 EXPOSE 22
 
 COPY my_init /sbin/
