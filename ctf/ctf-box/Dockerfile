@@ -1,13 +1,13 @@
-FROM kalilinux/kali-linux-docker:latest
+FROM ubuntu:16.04
 LABEL maintainer "ripples <w@q2zy.com>"
 
 # sources
-COPY sources.list /etc/apt/sources.list
+RUN sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/' /etc/apt/sources.list
 COPY pip.conf /root/.pip/pip.conf
 
 RUN dpkg --add-architecture i386 \
     && apt-get update && apt-get -y upgrade && apt-get install -y \
-        ack \
+        ack-grep \
         autojump \
         bc \
         binutils-arm-linux-gnueabi \
