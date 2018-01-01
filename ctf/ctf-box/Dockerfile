@@ -52,6 +52,7 @@ RUN dpkg --add-architecture i386 \
         trash-cli \
         wget \
         vim \
+        xsel \
         zsh \
     && rm -rf /var/lib/apt/lists/*
 
