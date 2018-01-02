@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb:10.1
+    environment:
+      MYSQL_ROOT_PASSWORD: filerun
+      MYSQL_USER: filerun
+      MYSQL_PASSWORD: filerun
+      MYSQL_DATABASE: filerun
+    volumes:
+      - db:/var/lib/mysql
+    restart: unless-stopped
+
+  web:
+    depends_on:
+      - db
+    links:
+      - db
+    image: afian/filerun
+    volumes:
+      - html:/var/www/html
+      - ${USER_FILES}:/user-files
+    restart: unless-stopped
+
+  aria2:
+    image: wahyd4/aria2-ui:filerun
+    links:
+      - web:file-manager
+    ports:
+      - "8800:80"
+      - "6800:6800"
+    environment:
+      - DOMAIN=:80
+    volumes:
+      - ${USER_FILES}:/user-files
+    restart: unless-stopped
+
+volumes:
+  db:
+  html:
