@@ -2,25 +2,30 @@ version: '3'
 
 services:
   db:
-    image: mariadb:10.1
-    environment:
-      MYSQL_ROOT_PASSWORD: filerun
-      MYSQL_USER: filerun
-      MYSQL_PASSWORD: filerun
-      MYSQL_DATABASE: filerun
+    image: mariadb
+    env_file:
+      - db.env
     volumes:
       - db:/var/lib/mysql
     restart: unless-stopped
 
-  filerun:
-    image: afian/filerun
+  nextcloud:
+    image: nextcloud
     depends_on:
       - db
     links:
       - db
+    env_file:
+      - db.env
+    environment:
+      MYSQL_HOST: db
+      NEXTCLOUD_ADMIN_USER: ${ADMIN_USER}
+      NEXTCLOUD_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
-      - filerun-html:/var/www/html
-      - ${USER_FILES}:/user-files
+      - nextcloud:/var/www/html
+      - ${DATA_PATH}/nextcloud:/var/www/html/data
+      - ${DATA_PATH}/aria2:/aria2
+      - ${RO_DATA_PATH}:/ro-data:ro
     restart: unless-stopped
 
   aria2:
@@ -30,12 +35,13 @@ services:
     environment:
       - SECRET=${RPC_SECRET}
     volumes:
-      - ${USER_FILES}/aria2:/data
+      - ${DATA_PATH}/aria2:/data
+    restart: unless-stopped
 
   proxy:
     image: abiosoft/caddy
     links:
-      - filerun
+      - nextcloud
       - aria2
     ports:
       - 3080:80
@@ -45,8 +51,9 @@ services:
     volumes:
       - ./Caddyfile:/etc/Caddyfile
       - caddycerts:/etc/caddycerts
+    restart: unless-stopped
 
 volumes:
   db:
-  filerun-html:
+  nextcloud:
   caddycerts:

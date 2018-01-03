@@ -1,5 +1,5 @@
 {$SERVER} {
-    proxy / filerun:80 {
+    proxy / nextcloud:80 {
         transparent
     }
     gzip
