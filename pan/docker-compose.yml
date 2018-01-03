@@ -12,30 +12,41 @@ services:
       - db:/var/lib/mysql
     restart: unless-stopped
 
-  web:
+  filerun:
+    image: afian/filerun
     depends_on:
       - db
     links:
       - db
-    image: afian/filerun
     volumes:
-      - html:/var/www/html
+      - filerun-html:/var/www/html
       - ${USER_FILES}:/user-files
     restart: unless-stopped
 
   aria2:
-    image: wahyd4/aria2-ui:filerun
-    links:
-      - web:file-manager
+    image: xujinkai/aria2-with-webui
     ports:
-      - "8800:80"
-      - "6800:6800"
+      - 6800:6800
     environment:
-      - DOMAIN=:80
+      - SECRET=${RPC_SECRET}
     volumes:
-      - ${USER_FILES}:/user-files
-    restart: unless-stopped
+      - ${USER_FILES}/aria2:/data
+
+  proxy:
+    image: abiosoft/caddy
+    links:
+      - filerun
+      - aria2
+    ports:
+      - 3080:80
+    environment:
+      - SERVER=:80
+      - CADDYPATH=/etc/caddycerts
+    volumes:
+      - ./Caddyfile:/etc/Caddyfile
+      - caddycerts:/etc/caddycerts
 
 volumes:
   db:
-  html:
+  filerun-html:
+  caddycerts:

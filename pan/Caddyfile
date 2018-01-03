@@ -1,0 +1,17 @@
+{$SERVER} {
+    proxy / filerun:80 {
+        transparent
+    }
+    gzip
+    log stdout
+    errors stdout
+}
+
+{$SERVER}/aria2 {
+    proxy / aria2:80 {
+        transparent
+    }
+    gzip
+    log stdout
+    errors stdout
+}
