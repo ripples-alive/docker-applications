@@ -1,5 +1,6 @@
 {$DOMAIN}, :{$HTTP_PORT} {
-    proxy /aria2 aria2:80 {
+    redir /aria2 /aria2/ 301
+    proxy /aria2/ aria2:80 {
         transparent
         without /aria2
     }
