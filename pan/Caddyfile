@@ -1,15 +1,16 @@
-{$SERVER} {
+{$DOMAIN}, :{$HTTP_PORT} {
+    proxy /aria2 aria2:80 {
+        transparent
+        without /aria2
+    }
+    proxy /jsonrpc aria2:6800 {
+        transparent
+    }
     proxy / nextcloud:80 {
         transparent
     }
-    gzip
-    log stdout
-    errors stdout
-}
-
-{$SERVER}/aria2 {
-    proxy / aria2:80 {
-        transparent
+    tls {
+        dns dnspod
     }
     gzip
     log stdout

@@ -10,6 +10,7 @@ services:
     restart: unless-stopped
 
   nextcloud:
+    image: ripples/nextcloud
     build: nextcloud
     links:
       - db
@@ -28,6 +29,7 @@ services:
     restart: unless-stopped
 
   aria2:
+    image: ripples/aria2
     build: aria2
     ports:
       - 6800:6800
@@ -40,18 +42,27 @@ services:
     restart: unless-stopped
 
   proxy:
-    image: abiosoft/caddy
+    image: ripples/caddy:dnspod
+    build:
+      context: github.com/abiosoft/caddy-docker.git
+      args:
+        - plugins=dnspod
     links:
       - nextcloud
       - aria2
     ports:
-      - 3080:80
+      - ${HTTP_PORT}:${HTTP_PORT}
+      - ${HTTPS_PORT}:${HTTPS_PORT}
     environment:
-      - SERVER=:80
+      - DOMAIN=${DOMAIN}
+      - HTTP_PORT=${HTTP_PORT}
+      - HTTPS_PORT=${HTTPS_PORT}
+      - DNSPOD_API_KEY=${DNSPOD_API_KEY}
       - CADDYPATH=/etc/caddycerts
     volumes:
       - ./Caddyfile:/etc/Caddyfile
       - caddycerts:/etc/caddycerts
+    command: ["--conf", "/etc/Caddyfile", "--log", "stdout", "-http-port", "${HTTP_PORT}", "-https-port", "${HTTPS_PORT}"]
     restart: unless-stopped
 
 volumes:
