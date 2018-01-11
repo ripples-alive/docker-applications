@@ -17,3 +17,4 @@ set banner-color blue,bold
 # memory-heap-color: color for heap memory
 # default: blue
 set memory-heap-color blue,bold
+

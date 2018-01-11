@@ -2,7 +2,7 @@ FROM ubuntu:16.04
 LABEL maintainer "ripples <w@q2zy.com>"
 
 # sources
-RUN sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/' /etc/apt/sources.list
+RUN sed -i 's/[^\/]*\.ubuntu\.com/mirrors.ustc.edu.cn/' /etc/apt/sources.list
 COPY pip.conf /root/.pip/pip.conf
 
 RUN dpkg --add-architecture i386 \
@@ -84,6 +84,14 @@ RUN cd ~ && git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git Pwngdb \
     && git clone --depth 1 https://github.com/pwndbg/pwndbg.git pwndbg \
     && cd pwndbg && ./setup.sh
 COPY .gdbinit /root/.gdbinit
+RUN cd ~ && sed -i 's/^#\s*\(deb-src .* xenial main restricted\)$/\1/' /etc/apt/sources.list \
+    && apt-get update \
+    && apt-get source libc6 \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf ./glibc_* \
+    && find ./glibc-2.23 -type f ! -name '*.[c,cc,h,S]' | xargs rm \
+    && rm -rf ./glibc-2.23/sysdeps ./glibc-2.23/iconvdata ./glibc-2.23/.pc \
+    && echo directory $(find /root/glibc-2.23 -type d | paste -sd:) >> /root/.gdbinit
 
 # fix locale
 RUN locale-gen en_US.UTF-8 && localedef -i en_US -f UTF-8 en_US.UTF-8
