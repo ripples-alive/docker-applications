@@ -23,8 +23,7 @@ services:
       USER_ID: ${USER_ID}
     volumes:
       - nextcloud:/var/www/html
-      - ${DATA_PATH}/nextcloud:/var/www/html/data
-      - ${DATA_PATH}/aria2:/aria2
+      - ${DATA_PATH}:/var/www/html/data
       - ${RO_DATA_PATH}:/ro-data:ro
     restart: unless-stopped
 
