@@ -15,12 +15,15 @@ RUN dpkg --add-architecture i386 \
         cmake \
         ctags \
         debian-keyring \
+        dnsutils \
         g++ \
         gcc \
         gdb-multiarch \
         gdbserver \
         git \
         httpie \
+        inetutils-traceroute \
+        iputils-ping \
         libc6-dbg \
         libc6-i386 \
         libc6-dbg:i386 \
@@ -35,7 +38,9 @@ RUN dpkg --add-architecture i386 \
         ltrace \
         make \
         man \
+        mtr \
         nasm \
+        net-tools \
         nmap \
         openssh-server \
         p7zip-full \
