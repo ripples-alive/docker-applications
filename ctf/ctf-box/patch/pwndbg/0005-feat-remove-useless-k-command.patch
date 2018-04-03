@@ -1,0 +1,31 @@
+From 05f24ddf9d92363148101e38734571e397d10943 Mon Sep 17 00:00:00 2001
+From: ripples <564311873@qq.com>
+Date: Tue, 3 Apr 2018 14:57:39 +0800
+Subject: [PATCH 5/6] feat: remove useless `k` command
+
+---
+ pwndbg/commands/windbg.py | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/pwndbg/commands/windbg.py b/pwndbg/commands/windbg.py
+index d59eac1..490cb18 100644
+--- a/pwndbg/commands/windbg.py
++++ b/pwndbg/commands/windbg.py
+@@ -321,14 +321,6 @@ def u(where=None, n=5):
+         where = pwndbg.regs.pc
+     pwndbg.commands.nearpc.nearpc(where, n)
+ 
+-@pwndbg.commands.Command
+-@pwndbg.commands.OnlyWhenRunning
+-def k():
+-    """
+-    Print a backtrace (alias 'bt')
+-    """
+-    gdb.execute('bt')
+-
+ @pwndbg.commands.ParsedCommand
+ @pwndbg.commands.OnlyWhenRunning
+ def ln(value=None):
+-- 
+2.17.0
+

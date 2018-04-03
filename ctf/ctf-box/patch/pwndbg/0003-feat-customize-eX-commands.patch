@@ -1,0 +1,51 @@
+From c35bfe0084545fb671e904faaacc3d4a58a3a846 Mon Sep 17 00:00:00 2001
+From: ripples <564311873@qq.com>
+Date: Tue, 3 Apr 2018 14:24:19 +0800
+Subject: [PATCH 3/6] feat: customize eX commands
+
+---
+ pwndbg/commands/windbg.py | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/pwndbg/commands/windbg.py b/pwndbg/commands/windbg.py
+index f6a0612..d59eac1 100644
+--- a/pwndbg/commands/windbg.py
++++ b/pwndbg/commands/windbg.py
+@@ -147,6 +147,26 @@ def eq(address, *data):
+     """
+     return eX(8, address, data)
+ 
++@pwndbg.commands.Command
++@pwndbg.commands.OnlyWhenRunning
++def es(address, *data):
++    """
++    Write a ascii string at the specified address.
++    """
++    return eX(1, address, data[0], hex=False)
++
++@pwndbg.commands.Command
++@pwndbg.commands.OnlyWhenRunning
++def esh(address, *data):
++    """
++    Write a hex string at the specified address.
++    """
++    data = data[0].lstrip('0x')
++    if len(data) & 1 == 1:
++        data += '0'
++    data = ['0x' + data[i:i + 2] for i in range(0, len(data), 2)]
++    return eX(1, address, data)
++
+ @pwndbg.commands.Command
+ @pwndbg.commands.OnlyWhenRunning
+ def ez(address, *data):
+@@ -174,6 +194,7 @@ def eX(size, address, data, hex=True):
+ 
+     for i,bytestr in enumerate(data):
+         if hex:
++            bytestr = '{:#x}'.format(int(bytestr, 0)).lstrip('0x')
+             bytestr = bytestr.rjust(size*2, '0')
+             data    = codecs.decode(bytestr, 'hex')
+         else:
+-- 
+2.17.0
+

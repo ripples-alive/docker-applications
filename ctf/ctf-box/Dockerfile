@@ -17,10 +17,12 @@ RUN dpkg --add-architecture i386 \
         debian-keyring \
         dnsutils \
         g++ \
+        gawk \
         gcc \
         gdb-multiarch \
         gdbserver \
         git \
+        htop \
         httpie \
         inetutils-traceroute \
         iputils-ping \
@@ -85,9 +87,12 @@ ENV WORKON_HOME /root/.virtualenvs
 RUN gem install one_gadget
 
 # gdb
+COPY patch /root/patch
 RUN cd ~ && git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git Pwngdb \
     && git clone --depth 1 https://github.com/pwndbg/pwndbg.git pwndbg \
-    && cd pwndbg && ./setup.sh
+    && git config --global user.email "ctf-box@q2zy.com" \
+    && git config --global user.name "ctf-box" \
+    && cd pwndbg && git am -3 ../patch/pwndbg/*.patch && ./setup.sh
 COPY .gdbinit /root/.gdbinit
 RUN cd ~ && sed -i 's/^#\s*\(deb-src .* xenial main restricted\)$/\1/' /etc/apt/sources.list \
     && apt-get update \
@@ -97,6 +102,10 @@ RUN cd ~ && sed -i 's/^#\s*\(deb-src .* xenial main restricted\)$/\1/' /etc/apt/
     && find ./glibc-2.23 -type f ! -name '*.[c,cc,h,S]' | xargs rm \
     && rm -rf ./glibc-2.23/sysdeps ./glibc-2.23/iconvdata ./glibc-2.23/.pc \
     && echo directory $(find /root/glibc-2.23 -type d | paste -sd:) >> /root/.gdbinit
+COPY dbg /dbg
+
+# how2heap
+RUN cd ~ && git clone --depth 1 https://github.com/shellphish/how2heap how2heap
 
 # fix locale
 RUN locale-gen en_US.UTF-8 && localedef -i en_US -f UTF-8 en_US.UTF-8
@@ -106,7 +115,7 @@ RUN TERM=linux TERMINFO=/etc/terminfo \
     sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)" \
     || chsh -s /bin/zsh
 RUN cd ~ && git clone --recursive --depth 1 https://github.com/ripples-alive/dotfiles.git .dotfiles \
-    && yes | .dotfiles/bin/sync-dotfiles || yes | .dotfiles/bin/sync-dotfiles
+    || echo yyyyyyyyyy | .dotfiles/bin/sync-dotfiles
 RUN cd ~ && git clone --depth 1 https://github.com/ripples-alive/CTF-Scripts.git ctf-scripts
 ENV PYTHONPATH /root/ctf-scripts/utils
 COPY authorized_keys /root/.ssh/authorized_keys
@@ -120,9 +129,10 @@ RUN chown root:root /sbin/my_init && chmod 755 /sbin/my_init
 ENV WORKDIR /root/workspace
 WORKDIR $WORKDIR
 
-COPY extra.zsh /root/.extra
+COPY extra.zsh /tmp/.extra
 COPY Dockerfile /tmp/Dockerfile
 RUN grep '^ENV ' /tmp/Dockerfile | awk '{printf "export %s=%s\n",$2,$3}' \
-    | cat - /root/.extra | tee /root/.extra
+    | cat /tmp/.extra - | tee /root/.extra \
+    && rm -rf /tmp/*
 
 CMD ["/sbin/my_init"]
