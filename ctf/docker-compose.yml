@@ -7,8 +7,6 @@ services:
     container_name: ctf-box
     command: /sbin/my_init
     ports:
-      - "13002:3002"
-      - "14000:4000"
       - "10022:22"
     volumes:
       - ~/workspace/CTF:/root/workspace
