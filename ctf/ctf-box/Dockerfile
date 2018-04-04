@@ -1,8 +1,8 @@
-FROM ubuntu:16.04
+FROM ubuntu:xenial
 LABEL maintainer "ripples <w@q2zy.com>"
 
 # sources
-RUN sed -i 's/[^\/]*\.ubuntu\.com/mirrors.ustc.edu.cn/' /etc/apt/sources.list
+ADD https://mirrors.ustc.edu.cn/repogen/conf/ubuntu-http-4-xenial /etc/apt/sources.list
 COPY pip.conf /root/.pip/pip.conf
 
 RUN dpkg --add-architecture i386 \
