@@ -3,7 +3,7 @@ version: '3'
 services:
   ctf-box:
     build: ctf-box
-    image: ripples/ctf-box
+    image: ripples/ctf-box:debian
     container_name: ctf-box
     command: /sbin/my_init
     ports:

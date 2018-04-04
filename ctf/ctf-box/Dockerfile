@@ -1,8 +1,8 @@
-FROM ubuntu:xenial
+FROM debian:stretch
 LABEL maintainer "ripples <w@q2zy.com>"
 
 # sources
-ADD https://mirrors.ustc.edu.cn/repogen/conf/ubuntu-http-4-xenial /etc/apt/sources.list
+ADD https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-stretch /etc/apt/sources.list
 COPY pip.conf /root/.pip/pip.conf
 
 RUN dpkg --add-architecture i386 \
@@ -99,9 +99,9 @@ RUN cd ~ && sed -i 's/^#\s*\(deb-src .* xenial main restricted\)$/\1/' /etc/apt/
     && apt-get source libc6 \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf ./glibc_* \
-    && find ./glibc-2.23 -type f ! -name '*.[c,cc,h,S]' | xargs rm \
-    && rm -rf ./glibc-2.23/sysdeps ./glibc-2.23/iconvdata ./glibc-2.23/.pc \
-    && echo directory $(find /root/glibc-2.23 -type d | paste -sd:) >> /root/.gdbinit
+    && find ./glibc-2.24 -type f ! -name '*.[c,cc,h,S]' | xargs rm \
+    && rm -rf ./glibc-2.24/sysdeps ./glibc-2.24/iconvdata ./glibc-2.24/.pc \
+    && echo directory $(find /root/glibc-2.24 -type d | paste -sd:) >> /root/.gdbinit
 COPY dbg /dbg
 
 # how2heap
