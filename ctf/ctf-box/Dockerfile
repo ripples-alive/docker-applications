@@ -63,20 +63,23 @@ RUN dpkg --add-architecture i386 \
         zsh \
     && rm -rf /var/lib/apt/lists/*
 
+# concurrency jobs for make, empty for unlimited
+ARG CONCURRENCY=1
+
 # z3
 RUN cd ~ && git clone --depth 1 --branch=z3-4.5.0 https://github.com/Z3Prover/z3.git \
     && cd z3 && python scripts/mk_make.py \
-    && cd build && make && make install
+    && cd build && make -j${CONCURRENCY} && make install -j${CONCURRENCY}
 
 # keystone-engine
 RUN cd ~ && git clone --depth 1 --branch=0.9.1 https://github.com/keystone-engine/keystone.git \
     && cd keystone && mkdir build && cd build \
-    && sed -i "s/make -j8/make -j/" ../make-share.sh \
-    && bash ../make-share.sh && make install -j && ldconfig \
+    && sed -i "s/make -j8/make -j${CONCURRENCY}/" ../make-share.sh \
+    && bash ../make-share.sh && make install -j${CONCURRENCY} && ldconfig \
     && cd ../bindings/python \
     && sed -i "s/^PKG_NAME = 'keystone'/PKG_NAME = 'keystone-engine'/" setup.py \
     && sed -i "s/^VERSION = '0.9'/VERSION = '9.9'/" setup.py \
-    && make install -j
+    && make install -j${CONCURRENCY}
 
 # glibc with full debug info
 RUN cd ~ && sed -i 's/^#\s*\(deb-src .* xenial main restricted\)$/\1/' /etc/apt/sources.list \
@@ -88,10 +91,10 @@ RUN cd ~ && sed -i 's/^#\s*\(deb-src .* xenial main restricted\)$/\1/' /etc/apt/
     && export CXXFLAGS="${CFLAGS}" \
     && cd glibc-* && make -f ./debian/rules && mkdir -p build && cd build \
     && ../configure --prefix=/dbg64 --with-headers=/usr/include/ --enable-add-ons=libidn --disable-werror \
-    && make -j && make install -j \
+    && make -j${CONCURRENCY} && make install -j${CONCURRENCY} \
     && cd .. && rm -rf build && mkdir -p build && cd build \
     && CC="gcc -m32" CXX="g++ -m32" ../configure --prefix=/dbg32 --with-headers=/usr/include/ --enable-add-ons=libidn --disable-werror --host=i686-pc-linux-gnu \
-    && make -j && make install -j \
+    && make -j${CONCURRENCY} && make install -j${CONCURRENCY} \
     && cd .. && rm -rf build sysdeps iconvdata .pc \
     && find . -type f ! -name '*.[c,cc,h,S]' | xargs rm \
     && find /dbg32 /dbg64 -name '*.a' | xargs rm
