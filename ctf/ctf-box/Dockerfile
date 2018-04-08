@@ -94,15 +94,26 @@ RUN cd ~ && git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git Pwngdb \
     && git config --global user.name "ctf-box" \
     && cd pwndbg && git am -3 ../patch/pwndbg/*.patch && ./setup.sh
 COPY .gdbinit /root/.gdbinit
+
+# glibc with full debug info
 RUN cd ~ && sed -i 's/^#\s*\(deb-src .* xenial main restricted\)$/\1/' /etc/apt/sources.list \
     && apt-get update \
-    && apt-get source libc6 \
+    && apt-get source glibc \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf ./glibc_* \
-    && find ./glibc-2.23 -type f ! -name '*.[c,cc,h,S]' | xargs rm \
-    && rm -rf ./glibc-2.23/sysdeps ./glibc-2.23/iconvdata ./glibc-2.23/.pc \
-    && echo directory $(find /root/glibc-2.23 -type d | paste -sd:) >> /root/.gdbinit
-COPY dbg /dbg
+    && export PROCESSOR_NUMBER=$(cat /proc/cpuinfo | grep "processor" | wc -l) \
+    && export CFLAGS="-g -g3 -ggdb3 -gdwarf-4 -Og" \
+    && export CXXFLAGS="${CFLAGS}" \
+    && cd glibc-* && make -f ./debian/rules && mkdir -p build && cd build \
+    && ../configure --prefix=/dbg64 --with-headers=/usr/include/ --enable-add-ons=libidn --disable-werror \
+    && make -j${PROCESSOR_NUMBER} \
+    && make install -j${PROCESSOR_NUMBER} \
+    && cd .. && rm -rf build && mkdir -p build && cd build \
+    && CC="gcc -m32" CXX="g++ -m32" ../configure --prefix=/dbg32 --with-headers=/usr/include/ --enable-add-ons=libidn --disable-werror --host=i686-pc-linux-gnu \
+    && make -j${PROCESSOR_NUMBER} \
+    && make install -j${PROCESSOR_NUMBER} \
+    && cd .. && rm -rf build sysdeps iconvdata .pc \
+    && find . -type f ! -name '*.[c,cc,h,S]' | xargs rm
 
 # how2heap
 RUN cd ~ && git clone --depth 1 https://github.com/shellphish/how2heap how2heap
