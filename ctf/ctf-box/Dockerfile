@@ -112,6 +112,7 @@ RUN cd ~ && git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git Pwngdb \
     && git config --global user.name "ctf-box" \
     && cd pwndbg && git am -3 ../patch/pwndbg/*.patch && ./setup.sh
 COPY .gdbinit /root/.gdbinit
+RUN echo directory $(find /root/glibc-* -type d | paste -sd:) >> /root/.gdbinit
 
 # how2heap
 RUN cd ~ && git clone --depth 1 https://github.com/shellphish/how2heap how2heap
