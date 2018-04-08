@@ -66,7 +66,7 @@ RUN dpkg --add-architecture i386 \
 # z3
 RUN cd ~ && git clone --depth 1 --branch=z3-4.5.0 https://github.com/Z3Prover/z3.git \
     && cd z3 && python scripts/mk_make.py \
-    && cd build && make -j && make install -j
+    && cd build && make && make install
 
 # keystone-engine
 RUN cd ~ && git clone --depth 1 --branch=0.9.1 https://github.com/keystone-engine/keystone.git \
