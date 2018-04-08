@@ -71,12 +71,30 @@ RUN cd ~ && git clone --depth 1 --branch=z3-4.5.0 https://github.com/Z3Prover/z3
 # keystone-engine
 RUN cd ~ && git clone --depth 1 --branch=0.9.1 https://github.com/keystone-engine/keystone.git \
     && cd keystone && mkdir build && cd build \
-    && sed -i 's/make -j8/make -j1/' ../make-share.sh \
-    && bash ../make-share.sh && make install && ldconfig \
+    && sed -i "s/make -j8/make -j/" ../make-share.sh \
+    && bash ../make-share.sh && make install -j && ldconfig \
     && cd ../bindings/python \
     && sed -i "s/^PKG_NAME = 'keystone'/PKG_NAME = 'keystone-engine'/" setup.py \
     && sed -i "s/^VERSION = '0.9'/VERSION = '9.9'/" setup.py \
-    && make install
+    && make install -j
+
+# glibc with full debug info
+RUN cd ~ && sed -i 's/^#\s*\(deb-src .* xenial main restricted\)$/\1/' /etc/apt/sources.list \
+    && apt-get update \
+    && apt-get source glibc \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf ./glibc_* \
+    && export CFLAGS="-g -g3 -ggdb3 -gdwarf-4 -Og" \
+    && export CXXFLAGS="${CFLAGS}" \
+    && cd glibc-* && make -f ./debian/rules && mkdir -p build && cd build \
+    && ../configure --prefix=/dbg64 --with-headers=/usr/include/ --enable-add-ons=libidn --disable-werror \
+    && make -j && make install -j \
+    && cd .. && rm -rf build && mkdir -p build && cd build \
+    && CC="gcc -m32" CXX="g++ -m32" ../configure --prefix=/dbg32 --with-headers=/usr/include/ --enable-add-ons=libidn --disable-werror --host=i686-pc-linux-gnu \
+    && make -j && make install -j \
+    && cd .. && rm -rf build sysdeps iconvdata .pc \
+    && find . -type f ! -name '*.[c,cc,h,S]' | xargs rm \
+    && find /dbg32 /dbg64 -name '*.a' | xargs rm
 
 # python libs
 RUN pip install -U pip ipython==5.* pwntools virtualenv virtualenvwrapper angr binch \
@@ -94,15 +112,7 @@ RUN cd ~ && git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git Pwngdb \
     && git config --global user.name "ctf-box" \
     && cd pwndbg && git am -3 ../patch/pwndbg/*.patch && ./setup.sh
 COPY .gdbinit /root/.gdbinit
-RUN cd ~ && sed -i 's/^#\s*\(deb-src .* xenial main restricted\)$/\1/' /etc/apt/sources.list \
-    && apt-get update \
-    && apt-get source libc6 \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf ./glibc_* \
-    && find ./glibc-2.24 -type f ! -name '*.[c,cc,h,S]' | xargs rm \
-    && rm -rf ./glibc-2.24/sysdeps ./glibc-2.24/iconvdata ./glibc-2.24/.pc \
-    && echo directory $(find /root/glibc-2.24 -type d | paste -sd:) >> /root/.gdbinit
-COPY dbg /dbg
+RUN echo directory $(find /root/glibc-* -type d | paste -sd:) >> /root/.gdbinit
 
 # how2heap
 RUN cd ~ && git clone --depth 1 https://github.com/shellphish/how2heap how2heap
