@@ -66,17 +66,17 @@ RUN dpkg --add-architecture i386 \
 # z3
 RUN cd ~ && git clone --depth 1 --branch=z3-4.5.0 https://github.com/Z3Prover/z3.git \
     && cd z3 && python scripts/mk_make.py \
-    && cd build && make && make install
+    && cd build && make -j && make install -j
 
 # keystone-engine
 RUN cd ~ && git clone --depth 1 --branch=0.9.1 https://github.com/keystone-engine/keystone.git \
     && cd keystone && mkdir build && cd build \
-    && sed -i 's/make -j8/make -j1/' ../make-share.sh \
-    && bash ../make-share.sh && make install && ldconfig \
+    && sed -i "s/make -j8/make -j/" ../make-share.sh \
+    && bash ../make-share.sh && make install -j && ldconfig \
     && cd ../bindings/python \
     && sed -i "s/^PKG_NAME = 'keystone'/PKG_NAME = 'keystone-engine'/" setup.py \
     && sed -i "s/^VERSION = '0.9'/VERSION = '9.9'/" setup.py \
-    && make install
+    && make install -j
 
 # python libs
 RUN pip install -U pip ipython==5.* pwntools virtualenv virtualenvwrapper angr binch \
@@ -101,17 +101,14 @@ RUN cd ~ && sed -i 's/^#\s*\(deb-src .* xenial main restricted\)$/\1/' /etc/apt/
     && apt-get source glibc \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf ./glibc_* \
-    && export PROCESSOR_NUMBER=$(cat /proc/cpuinfo | grep "processor" | wc -l) \
     && export CFLAGS="-g -g3 -ggdb3 -gdwarf-4 -Og" \
     && export CXXFLAGS="${CFLAGS}" \
     && cd glibc-* && make -f ./debian/rules && mkdir -p build && cd build \
     && ../configure --prefix=/dbg64 --with-headers=/usr/include/ --enable-add-ons=libidn --disable-werror \
-    && make -j${PROCESSOR_NUMBER} \
-    && make install -j${PROCESSOR_NUMBER} \
+    && make -j && make install -j \
     && cd .. && rm -rf build && mkdir -p build && cd build \
     && CC="gcc -m32" CXX="g++ -m32" ../configure --prefix=/dbg32 --with-headers=/usr/include/ --enable-add-ons=libidn --disable-werror --host=i686-pc-linux-gnu \
-    && make -j${PROCESSOR_NUMBER} \
-    && make install -j${PROCESSOR_NUMBER} \
+    && make -j && make install -j \
     && cd .. && rm -rf build sysdeps iconvdata .pc \
     && find . -type f ! -name '*.[c,cc,h,S]' | xargs rm
 
