@@ -2,7 +2,10 @@ version: '3'
 
 services:
   ctf-box:
-    build: ctf-box
+    build:
+      context: ctf-box
+      args:
+          CONCURRENCY: 1
     image: ripples/ctf-box:debian
     container_name: ctf-box
     command: /sbin/my_init
