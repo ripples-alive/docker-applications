@@ -82,9 +82,7 @@ RUN cd ~ && git clone --depth 1 --branch=0.9.1 https://github.com/keystone-engin
     && make install -j${CONCURRENCY}
 
 # glibc with full debug info
-RUN cd ~ && sed -i 's/^#\s*\(deb-src .* xenial main restricted\)$/\1/' /etc/apt/sources.list \
-    && apt-get update \
-    && apt-get source glibc \
+RUN cd ~ && apt-get update && apt-get source glibc \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf ./glibc_* \
     && export CFLAGS="-g -g3 -ggdb3 -gdwarf-4 -Og" \
