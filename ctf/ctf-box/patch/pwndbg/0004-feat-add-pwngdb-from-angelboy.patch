@@ -16,8 +16,8 @@ index 91d6f9d..d26b850 100755
 --- a/pwndbg/__init__.py
 +++ b/pwndbg/__init__.py
 @@ -35,6 +35,7 @@ import pwndbg.commands.misc
- import pwndbg.commands.next
- import pwndbg.commands.peda
+ import pwndbg.commands.pie
+ import pwndbg.commands.probeleak
  import pwndbg.commands.procinfo
 +import pwndbg.commands.pwngdb
  import pwndbg.commands.radare2
@@ -360,6 +360,6 @@ index 0000000..0e72980
 +    result = subprocess.check_output(
 +        "readelf -h {}".format(pwndbg.proc.exe), shell=True).decode("utf8")
 +    return True if re.search("DYN", result) else False
--- 
+--
 2.17.0
 

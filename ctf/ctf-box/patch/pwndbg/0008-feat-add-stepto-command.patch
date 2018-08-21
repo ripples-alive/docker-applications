@@ -1,29 +1,20 @@
-From 018f2366945c8b6715c5e0751327d2ad145d2996 Mon Sep 17 00:00:00 2001
-From: ripples <564311873@qq.com>
-Date: Tue, 3 Apr 2018 20:43:47 +0800
-Subject: [PATCH 6/6] feat: add `stepto` command
+From 2bc0294b4f502731ce3b3e03dbd79c309d646c4c Mon Sep 17 00:00:00 2001
+From: ctf-box <ctf-box@q2zy.com>
+Date: Tue, 21 Aug 2018 17:05:48 +0000
+Subject: [PATCH] feat: add `stepto` command
 
 ---
- pwndbg/commands/next.py | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ pwndbg/commands/next.py | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
 diff --git a/pwndbg/commands/next.py b/pwndbg/commands/next.py
-index 75b3857..a9cfc3d 100644
+index 8e173a3..57ba4cb 100644
 --- a/pwndbg/commands/next.py
 +++ b/pwndbg/commands/next.py
-@@ -8,6 +8,8 @@ from __future__ import division
- from __future__ import print_function
- from __future__ import unicode_literals
- 
-+import gdb
-+
- import pwndbg.commands
- import pwndbg.next
- 
-@@ -82,3 +84,20 @@ def nextsc(*args):
-     Breaks at the next syscall.
-     """
-     next_syscall(*args)
+@@ -123,3 +123,20 @@ def stepsyscall(*args):
+ @pwndbg.commands.OnlyWhenRunning
+ def stepsc(*args):
+     stepsyscall(*args)
 +
 +
 +@pwndbg.commands.Command
@@ -42,5 +33,5 @@ index 75b3857..a9cfc3d 100644
 +    """Alias for stepto"""
 +    stepto(*args)
 -- 
-2.17.0
+2.7.4
 
