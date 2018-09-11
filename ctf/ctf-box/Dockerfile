@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM ubuntu:16.04
 LABEL maintainer "ripples <w@q2zy.com>"
 
 # sources
@@ -11,9 +11,11 @@ RUN dpkg --add-architecture i386 \
         autojump \
         bc \
         binutils-arm-linux-gnueabi \
+        bison \
         build-essential \
         cmake \
         ctags \
+        curl \
         debian-keyring \
         dnsutils \
         g++ \
@@ -37,15 +39,18 @@ RUN dpkg --add-architecture i386 \
         libssh-dev \
         libstdc++6:i386 \
         locales \
+        locate \
         ltrace \
         make \
         man \
         mtr \
         nasm \
         net-tools \
+        netcat \
         nmap \
         openssh-server \
         p7zip-full \
+        patchelf \
         python \
         python-dev \
         python-pip \
@@ -98,7 +103,8 @@ RUN cd ~ && apt-get update && apt-get source glibc \
     && find /dbg32 /dbg64 -name '*.a' | xargs rm
 
 # python libs
-RUN pip install -U pip ipython==5.* pwntools virtualenv virtualenvwrapper angr binch \
+RUN pip install -U pyopenssl pip ipython==5.* pwntools virtualenv virtualenvwrapper angr binch \
+    && hash -r \
     && pip install -I --no-binary :all: capstone
 ENV WORKON_HOME /root/.virtualenvs
 
@@ -121,12 +127,16 @@ RUN cd ~ && git clone --depth 1 https://github.com/shellphish/how2heap how2heap
 # fix locale
 RUN locale-gen en_US.UTF-8 && localedef -i en_US -f UTF-8 en_US.UTF-8
 
+# linuxbrew
+RUN groupadd -r linuxbrew && useradd -r -g linuxbrew linuxbrew \
+    && git clone https://github.com/Linuxbrew/brew.git /home/linuxbrew/.linuxbrew \
+    && chown -R linuxbrew:linuxbrew /home/linuxbrew \
+    && sudo -u linuxbrew -H /home/linuxbrew/.linuxbrew/bin/brew install bat
+
 # personal configuration
-RUN TERM=linux TERMINFO=/etc/terminfo \
-    sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)" \
-    || chsh -s /bin/zsh
 RUN cd ~ && git clone --recursive --depth 1 https://github.com/ripples-alive/dotfiles.git .dotfiles \
-    || echo yyyyyyyyyy | .dotfiles/bin/sync-dotfiles
+    && sed -i 's/<\/dev\/tty//' .dotfiles/bin/sync-dotfiles \
+    && echo yyyyyyyyyy | .dotfiles/bin/sync-dotfiles
 RUN cd ~ && git clone --depth 1 https://github.com/ripples-alive/CTF-Scripts.git ctf-scripts
 ENV PYTHONPATH /root/ctf-scripts/utils
 COPY authorized_keys /root/.ssh/authorized_keys

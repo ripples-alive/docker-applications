@@ -1,5 +1,24 @@
 #!/bin/zsh
 
+antigen bundles <<EOF
+    adb
+    brew
+    copydir
+    copyfile
+    cp
+    jsontools
+    pip
+    urltools
+EOF
+
+export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+export MANPATH="$(brew --prefix)/share/man:$MANPATH"
+export INFOPATH="$(brew --prefix)/share/info:$INFOPATH"
+
+function brew() {
+    sudo -u linuxbrew -H bash -c "cd && /home/linuxbrew/.linuxbrew/bin/brew $*"
+}
+
 source /usr/local/bin/virtualenvwrapper.sh
 
 alias dbg='export LD_LIBRARY_PATH=/dbg/lib; echo use ld path: $LD_LIBRARY_PATH'
