@@ -11,10 +11,6 @@ antigen bundles <<EOF
     urltools
 EOF
 
-export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-export MANPATH="$(brew --prefix)/share/man:$MANPATH"
-export INFOPATH="$(brew --prefix)/share/info:$INFOPATH"
-
 function brew() {
     sudo -u linuxbrew -H bash -c "cd && /home/linuxbrew/.linuxbrew/bin/brew $*"
 }
