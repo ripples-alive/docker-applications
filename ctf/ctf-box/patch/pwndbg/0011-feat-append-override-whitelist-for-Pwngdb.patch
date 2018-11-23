@@ -1,0 +1,24 @@
+From e892ec421573442d5d07de025333853426b553a2 Mon Sep 17 00:00:00 2001
+From: ripples <564311873@qq.com>
+Date: Fri, 23 Nov 2018 15:51:45 +0800
+Subject: [PATCH 1/1] feat: append override whitelist for Pwngdb
+
+---
+ pwndbg/commands/__init__.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/pwndbg/commands/__init__.py b/pwndbg/commands/__init__.py
+index 03b4585..9cfda39 100644
+--- a/pwndbg/commands/__init__.py
++++ b/pwndbg/commands/__init__.py
+@@ -46,6 +46,7 @@ class Command(gdb.Command):
+     """Generic command wrapper"""
+     command_names = set()
+     builtin_override_whitelist = {'up', 'down', 'search', 'pwd', 'start'}
++    builtin_override_whitelist.update({'canary', 'got', 'heap', 'rop'})
+     history = {}
+ 
+     def __init__(self, function, prefix=False):
+-- 
+2.17.1
+
