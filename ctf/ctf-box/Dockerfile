@@ -124,12 +124,6 @@ RUN cd ~ && git clone --depth 1 https://github.com/shellphish/how2heap how2heap
 # fix locale
 RUN locale-gen en_US.UTF-8 && localedef -i en_US -f UTF-8 en_US.UTF-8
 
-# linuxbrew
-RUN groupadd -r linuxbrew && useradd -r -g linuxbrew linuxbrew \
-    && git clone https://github.com/Linuxbrew/brew.git /home/linuxbrew/.linuxbrew \
-    && chown -R linuxbrew:linuxbrew /home/linuxbrew \
-    && sudo -u linuxbrew -H /home/linuxbrew/.linuxbrew/bin/brew install bat
-
 # personal configuration
 RUN cd ~ && git clone --recursive --depth 1 https://github.com/ripples-alive/dotfiles.git .dotfiles \
     && sed -i 's/<\/dev\/tty//' .dotfiles/bin/sync-dotfiles \
