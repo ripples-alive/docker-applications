@@ -1,8 +1,8 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 LABEL maintainer "ripples <w@q2zy.com>"
 
 # sources
-ADD https://mirrors.ustc.edu.cn/repogen/conf/ubuntu-http-4-xenial /etc/apt/sources.list
+ADD https://mirrors.ustc.edu.cn/repogen/conf/ubuntu-http-4-bionic /etc/apt/sources.list
 
 RUN dpkg --add-architecture i386 \
     && apt-get update && apt-get -y upgrade && apt-get install -y \
@@ -88,10 +88,10 @@ RUN cd ~ && apt-get update && apt-get build-dep -y glibc && apt-get source glibc
     && export CFLAGS="-g -g3 -ggdb3 -gdwarf-4 -Og" \
     && export CXXFLAGS="${CFLAGS}" \
     && cd glibc-* && make -f ./debian/rules && mkdir -p build && cd build \
-    && ../configure --prefix=/dbg64 --with-headers=/usr/include/ --enable-add-ons=libidn --disable-werror \
+    && ../configure --prefix=/dbg64 --with-headers=/usr/include/ --enable-add-ons=libidn --enable-obsolete-rpc --disable-werror \
     && make -j${CONCURRENCY} && make install -j${CONCURRENCY} \
     && cd .. && rm -rf build && mkdir -p build && cd build \
-    && CC="gcc -m32" CXX="g++ -m32" ../configure --prefix=/dbg32 --with-headers=/usr/include/ --enable-add-ons=libidn --disable-werror --host=i686-pc-linux-gnu \
+    && CC="gcc -m32" CXX="g++ -m32" ../configure --prefix=/dbg32 --with-headers=/usr/include/ --enable-add-ons=libidn --enable-obsolete-rpc --disable-werror --host=i686-pc-linux-gnu \
     && make -j${CONCURRENCY} && make install -j${CONCURRENCY} \
     && cd .. && rm -rf build sysdeps iconvdata .pc \
     && find . -type f ! -name '*.[c,cc,h,S]' | xargs rm \
