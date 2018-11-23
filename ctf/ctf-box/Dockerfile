@@ -55,6 +55,7 @@ RUN dpkg --add-architecture i386 \
         python-pip \
         rsync \
         ruby \
+        silversearcher-ag \
         socat \
         software-properties-common \
         strace \
