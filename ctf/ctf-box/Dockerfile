@@ -3,7 +3,6 @@ LABEL maintainer "ripples <w@q2zy.com>"
 
 # sources
 ADD https://mirrors.ustc.edu.cn/repogen/conf/ubuntu-http-4-xenial /etc/apt/sources.list
-COPY pip.conf /root/.pip/pip.conf
 
 RUN dpkg --add-architecture i386 \
     && apt-get update && apt-get -y upgrade && apt-get install -y \
@@ -71,11 +70,6 @@ RUN dpkg --add-architecture i386 \
 # concurrency jobs for make, empty for unlimited
 ARG CONCURRENCY=1
 
-# z3
-RUN cd ~ && git clone --depth 1 --branch=z3-4.5.0 https://github.com/Z3Prover/z3.git \
-    && cd z3 && python scripts/mk_make.py \
-    && cd build && make -j${CONCURRENCY} && make install -j${CONCURRENCY}
-
 # keystone-engine
 RUN cd ~ && git clone --depth 1 --branch=0.9.1 https://github.com/keystone-engine/keystone.git \
     && cd keystone && mkdir build && cd build \
@@ -87,7 +81,7 @@ RUN cd ~ && git clone --depth 1 --branch=0.9.1 https://github.com/keystone-engin
     && make install -j${CONCURRENCY}
 
 # glibc with full debug info
-RUN cd ~ && apt-get update && apt-get source glibc \
+RUN cd ~ && apt-get update && apt-get build-dep -y glibc && apt-get source glibc \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf ./glibc_* \
     && export CFLAGS="-g -g3 -ggdb3 -gdwarf-4 -Og" \
@@ -103,8 +97,10 @@ RUN cd ~ && apt-get update && apt-get source glibc \
     && find /dbg32 /dbg64 -name '*.a' | xargs rm
 
 # python libs
-RUN pip install -U pyopenssl pip ipython==5.* pwntools virtualenv virtualenvwrapper angr binch \
-    && hash -r \
+RUN pip install -U pip pyopenssl && hash -r
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple \
+    && pip install -U binch pwntools virtualenv virtualenvwrapper \
+    && pip install --isolated angr ipython \
     && pip install -I --no-binary :all: capstone
 ENV WORKON_HOME /root/.virtualenvs
 
@@ -136,7 +132,8 @@ RUN groupadd -r linuxbrew && useradd -r -g linuxbrew linuxbrew \
 # personal configuration
 RUN cd ~ && git clone --recursive --depth 1 https://github.com/ripples-alive/dotfiles.git .dotfiles \
     && sed -i 's/<\/dev\/tty//' .dotfiles/bin/sync-dotfiles \
-    && echo yyyyyyyyyy | .dotfiles/bin/sync-dotfiles
+    && echo yyyyyyyyyy | .dotfiles/bin/sync-dotfiles \
+    && chsh -s /bin/zsh
 RUN cd ~ && git clone --depth 1 https://github.com/ripples-alive/CTF-Scripts.git ctf-scripts
 ENV PYTHONPATH /root/ctf-scripts/utils
 COPY authorized_keys /root/.ssh/authorized_keys
