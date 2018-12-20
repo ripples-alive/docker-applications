@@ -126,8 +126,9 @@ RUN locale-gen en_US.UTF-8 && localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # personal configuration
 RUN cd ~ && git clone --recursive --depth 1 https://github.com/ripples-alive/dotfiles.git .dotfiles \
-    && sed -i 's/<\/dev\/tty//' .dotfiles/bin/sync-dotfiles \
-    && echo yyyyyyyyyy | .dotfiles/bin/sync-dotfiles \
+    && sed -i 's/<\/dev\/tty/<\/dev\/zero/' .dotfiles/install.conf.yaml \
+    && rm -f .bashrc \
+    && .dotfiles/install \
     && chsh -s /bin/zsh
 RUN cd ~ && git clone --depth 1 https://github.com/ripples-alive/CTF-Scripts.git ctf-scripts
 ENV PYTHONPATH /root/ctf-scripts/utils
