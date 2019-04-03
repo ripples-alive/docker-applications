@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  server:
+    image: ustclug/neatdns
+    ports:
+      - 127.0.0.1:53:53/tcp
+      - 127.0.0.1:53:53/udp
+    environment:
+      DNSCRYPT_PROVIDER: 2.dnscrypt-cert.q2zy.com
+    volumes:
+      - dnscrypt:/srv/dnscrypt-wrapper
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+
+volumes:
+  dnscrypt:
